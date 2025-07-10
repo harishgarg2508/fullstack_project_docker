@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build: ./docker_next
+    container_name: frontend_container
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./docker_next
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+            - .git/
+        - action: rebuild
+          path: ./docker_next/package.json
+        - action: rebuild
+          path: ./docker_next/package-lock.json
+        - action: rebuild
+          path: ./docker_next/next.config.js
+
+  backend:
+    build: ./docker_backend
+    container_name: backend_container
+    ports:
+      - "3001:3001"
+    develop:
+      watch:
+        - action: sync
+          path: ./docker_backend
+          target: /app
+          ignore:
+            - node_modules/
+            - .git/
+            - dist/
+            - build/
+        - action: rebuild
+          path: ./docker_backend/package.json
+        - action: rebuild
+          path: ./docker_backend/package-lock.json
