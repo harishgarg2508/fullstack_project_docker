@@ -4,41 +4,32 @@ services:
     container_name: frontend_container
     ports:
       - "3000:3000"
-    develop:
-      watch:
-        - action: sync
-          path: ./docker_next
-          target: /app
-          ignore:
-            - node_modules/
-            - .next/
-            - .git/
-        - action: rebuild
-          path: ./docker_next/package.json
-        - action: rebuild
-          path: ./docker_next/package-lock.json
-        - action: rebuild
-          path: ./docker_next/next.config.js
+    volumes:
+      - ./docker_next:/app
 
   backend:
     build: ./docker_backend
     container_name: backend_container
     ports:
       - "3001:3001"
-    develop:
-      watch:
-        - action: sync
-          path: ./docker_backend
-          target: /app
-          ignore:
-            - node_modules/
-            - .git/
-            - dist/
-            - build/
-        - action: rebuild
-          path: ./docker_backend/package.json
-        - action: rebuild
-          path: ./docker_backend/package-lock.json
+    volumes:
+      - ./docker_backend:/app
+    depends_on:
+      - postgres
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_container
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: harishgarg.tech@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: harish
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:latest
     restart: always
@@ -50,11 +41,12 @@ services:
       - "5440:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "your_username"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog_container
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   db_data:
