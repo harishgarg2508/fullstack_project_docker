@@ -39,3 +39,22 @@ services:
           path: ./docker_backend/package.json
         - action: rebuild
           path: ./docker_backend/package-lock.json
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=harish
+      - POSTGRES_PASSWORD=harish
+      - POSTGRES_DB=harish
+    ports:
+      - "5440:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "your_username"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
